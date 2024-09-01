@@ -101,24 +101,16 @@ def check_docker_container_metrics():
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(ec2_host, username=ec2_username, key_filename=ssh_private_key_path)
 
-        # Obtener el uso de CPU del contenedor
-        stdin, stdout, stderr = ssh.exec_command(f"docker stats {docker_container_name} --no-stream --format '{{{{.CPUPerc}}}}'")
-        cpu_usage = stdout.read().decode().strip()
-        if cpu_usage:
-            container_metrics['cpu'] = f'CPU Usage: {cpu_usage}'
+        # Obtener el uso de CPU y memoria del contenedor
+        stdin, stdout, stderr = ssh.exec_command(f"docker stats {docker_container_name} --no-stream --format '{{{{.CPUPerc}}}},{{{{.MemUsage}}}}'")
+        stats_output = stdout.read().decode().strip()
+        if stats_output:
+            cpu_usage, memory_usage = stats_output.split(',')
+            container_metrics['cpu'] = f'CPU Usage: {cpu_usage.strip()}'
+            container_metrics['memory'] = f'Memory Usage: {memory_usage.strip()}'
 
-        # Obtener el uso de memoria del contenedor
-        stdin, stdout, stderr = ssh.exec_command(f"docker stats {docker_container_name} --no-stream --format '{{{{.MemUsage}}}}'")
-        memory_usage = stdout.read().decode().strip()
-        if memory_usage:
-            container_metrics['memory'] = f'Memory Usage: {memory_usage}'
-
-        # Obtener el uso de disco del contenedor (esto es más complicado y puede requerir configuraciones adicionales en Docker)
-        # Para simplificar, se podría utilizar el tamaño de los logs o usar un comando como:
-        stdin, stdout, stderr = ssh.exec_command(f"docker system df --format '{{{{.Size}}}}'")
-        disk_usage = stdout.read().decode().strip()
-        if disk_usage:
-            container_metrics['disk'] = f'Disk Usage: {disk_usage}'
+        # Nota: El uso de disco para contenedores individuales no es tan sencillo de obtener, a menos que el contenedor escriba en un volumen específico.
+        # Aquí podríamos obtener el tamaño de las imágenes y contenedores en el sistema en general, o detalles específicos si se configura.
 
         ssh.close()
     except Exception as e:
