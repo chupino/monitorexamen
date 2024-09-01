@@ -6,9 +6,11 @@
     <title>Estado de Servicios</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .status { margin: 10px 0; }
+        .status { margin: 20px 0; }
         .available { color: green; }
         .unavailable { color: red; }
+        .metrics { margin-top: 10px; }
+        .metrics p { margin: 5px 0; }
     </style>
 </head>
 <body>
@@ -16,29 +18,33 @@
 
     <div class="status">
         <h2>Estado de S3:</h2>
-        <p class="{{ 'available' if metrics['s3'] == 'Disponible' else 'unavailable' }}">{{ metrics['s3'] }}</p>
+        <p class="{{ 'available' if s3_status == 'Disponible' else 'unavailable' }}">{{ s3_status }}</p>
     </div>
 
     <div class="status">
         <h2>Estado de RDS:</h2>
-        <p class="{{ 'available' if metrics['rds'] == 'Disponible' else 'unavailable' }}">{{ metrics['rds'] }}</p>
+        <p class="{{ 'available' if rds_status == 'Disponible' else 'unavailable' }}">{{ rds_status }}</p>
     </div>
 
     <div class="status">
         <h2>Estado del EC2 y Contenedor:</h2>
-        <p>{{ metrics['cpu'] }}</p>
-        <p>{{ metrics['memory'] }}</p>
-        <p>{{ metrics['disk'] }}</p>
-        <p>{{ metrics.get('container_cpu', 'No disponible') }}</p>
-        <p>{{ metrics.get('container_memory', 'No disponible') }}</p>
-        <p>{{ metrics.get('container_disk', 'No disponible') }}</p>
+        <div class="metrics">
+            <p><strong>CPU del EC2:</strong> {{ ec2_metrics.get('cpu', 'No disponible') }}</p>
+            <p><strong>RAM del EC2:</strong> {{ ec2_metrics.get('memory', 'No disponible') }}</p>
+            <p><strong>Almacenamiento del EC2:</strong> {{ ec2_metrics.get('disk', 'No disponible') }}</p>
+        </div>
+        <div class="metrics">
+            <p><strong>CPU del contenedor:</strong> {{ docker_metrics.get('container_cpu', 'No disponible') }}</p>
+            <p><strong>RAM del contenedor:</strong> {{ docker_metrics.get('container_memory', 'No disponible') }}</p>
+            <p><strong>Almacenamiento del contenedor:</strong> {{ docker_metrics.get('container_disk', 'No disponible') }}</p>
+        </div>
     </div>
 
     <div class="status">
         <h2>Estado de los Endpoints:</h2>
-        <p>{{ metrics['worker_endpoint'] }}</p>
-        <p>{{ metrics['backend_endpoint'] }}</p>
-        <p>{{ metrics['front_endpoint'] }}</p>
+        <p><strong>Worker (Modelo Python):</strong> {{ worker_status }}</p>
+        <p><strong>API Dotnet:</strong> {{ backend_status }}</p>
+        <p><strong>Front PHP 😬:</strong> {{ front_status }}</p>
     </div>
 </body>
 </html>

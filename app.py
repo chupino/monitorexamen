@@ -164,26 +164,18 @@ def index():
     rds_status = check_rds_status()
     ec2_metrics = check_ec2_metrics()
     docker_metrics = check_docker_container_metrics()
-    
     worker_status = check_endpoint(worker_endpoint,"Worker (Modelo Python)")
     backend_status = check_endpoint(backend_endpoint, "API Dotnet")
     front_status = check_endpoint(front_endpoint, "Front PHP 😬")
 
-    metrics = {
-        's3': s3_status,
-        'rds': rds_status,
-        'cpu': ec2_metrics.get('cpu', 'No disponible'),
-        'memory': ec2_metrics.get('memory', 'No disponible'),
-        'disk': ec2_metrics.get('disk', 'No disponible'),
-        'container_cpu': docker_metrics.get('container_cpu', 'No disponible'),
-        'container_memory': docker_metrics.get('container_memory', 'No disponible'),
-        'container_disk': docker_metrics.get('container_disk', 'No disponible'),
-        'worker_endpoint': worker_status,
-        'backend_endpoint': backend_status,
-        'front_endpoint': front_status
-    }
-
-    return render_template('index.html', metrics=metrics)
+    return render_template('index.html', 
+                           s3_status=s3_status, 
+                           rds_status=rds_status, 
+                           ec2_metrics=ec2_metrics, 
+                           docker_metrics=docker_metrics, 
+                           worker_status=worker_status, 
+                           backend_status=backend_status, 
+                           front_status=front_status)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
