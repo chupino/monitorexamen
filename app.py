@@ -165,9 +165,9 @@ def index():
     ec2_metrics = check_ec2_metrics()
     docker_metrics = check_docker_container_metrics()
     
-    worker_status = check_endpoint(worker_endpoint)
-    backend_status = check_endpoint(backend_endpoint)
-    front_status = check_endpoint(front_endpoint)
+    worker_status = check_endpoint(worker_endpoint,"Worker (Modelo Python)")
+    backend_status = check_endpoint(backend_endpoint, "API Dotnet")
+    front_status = check_endpoint(front_endpoint, "Front PHP 😬")
 
     metrics = {
         's3': s3_status,
