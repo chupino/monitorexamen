@@ -4,142 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estado de Servicios</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #ffffff;
         }
         .container {
-            width: 80%;
-            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
         }
         .status {
-            background-color: #fff;
+            background-color: #2a2a2a;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .status h2 {
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            color: #333;
+            margin-top: 0;
+        }
+        .available {
+            color: #4caf50;
+            font-size: 1.2em;
+        }
+        .unavailable {
+            color: #f44336;
+            font-size: 1.2em;
+        }
+        .error {
+            color: #ff9800;
+            font-size: 1.2em;
         }
         .status p {
             margin: 10px 0;
-            font-size: 16px;
+            font-size: 1em;
         }
-        .status .status-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+        .status p strong {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
-        .status .status-item:last-child {
-            border-bottom: none;
+        .status img {
+            width: 20px;
+            vertical-align: middle;
+            margin-right: 10px;
         }
-        .status .status-item .status-text {
-            flex: 1;
+        .check {
+            color: #4caf50;
         }
-        .status .status-item .status-icon {
-            font-size: 18px;
-        }
-        .available .status-icon {
-            color: green;
-        }
-        .unavailable .status-icon {
-            color: red;
-        }
-        .error .status-icon {
-            color: orange;
-        }
-        .status .status-item .status-icon.fa-check {
-            content: "\f00c"; /* FontAwesome check icon */
-        }
-        .status .status-item .status-icon.fa-times {
-            content: "\f00d"; /* FontAwesome times icon */
-        }
-        .status .status-item .status-icon.fa-exclamation-triangle {
-            content: "\f071"; /* FontAwesome exclamation icon */
-        }
-        .status .status-item .status-info {
-            font-size: 14px;
-            color: #555;
+        .cross {
+            color: #f44336;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Estado de Servicios</h1>
-
         <div class="status">
             <h2>Estado de S3:</h2>
-            <div class="status-item {{ 'available' if s3_status == 'accessible' else 'unavailable' }}">
-                <span class="status-text">S3 Bucket</span>
-                <span class="status-icon fas {{ 'fa-check' if s3_status == 'accessible' else 'fa-times' }}"></span>
-            </div>
+            <p class="{{ 'available' if s3_status == 'accessible' else 'unavailable' }}">
+                <img src="{{ url_for('static', filename='check.svg') }}" class="{{ 'check' if s3_status == 'accessible' else 'cross' }}" alt="Status Icon"> {{ s3_status }}
+            </p>
         </div>
 
         <div class="status">
             <h2>Estado de RDS:</h2>
-            <div class="status-item {{ 'available' if rds_status == 'Database is accessible.' else 'unavailable' }}">
-                <span class="status-text">RDS Database</span>
-                <span class="status-icon fas {{ 'fa-check' if rds_status == 'Database is accessible.' else 'fa-times' }}"></span>
-            </div>
+            <p class="{{ 'available' if rds_status == 'Database is accessible.' else 'unavailable' }}">
+                <img src="{{ url_for('static', filename='check.svg') }}" class="{{ 'check' if rds_status == 'Database is accessible.' else 'cross' }}" alt="Status Icon"> {{ rds_status }}
+            </p>
         </div>
 
         <div class="status">
-            <h2>Estado del EC2 y Contenedor:</h2>
-            <div class="status-item">
-                <span class="status-text"><strong>CPU del EC2:</strong></span>
-                <span class="status-info">{{ ec2_metrics['cpu'] }}</span>
-            </div>
-            <div class="status-item">
-                <span class="status-text"><strong>RAM del EC2:</strong></span>
-                <span class="status-info">{{ ec2_metrics['ram'] }}</span>
-            </div>
-            <div class="status-item">
-                <span class="status-text"><strong>Almacenamiento del EC2:</strong></span>
-                <span class="status-info">{{ ec2_metrics['disk'] }}</span>
-            </div>
-            <div class="status-item">
-                <span class="status-text"><strong>CPU del contenedor:</strong></span>
-                <span class="status-info">{{ docker_metrics['cpu'] }}</span>
-            </div>
-            <div class="status-item">
-                <span class="status-text"><strong>RAM del contenedor:</strong></span>
-                <span class="status-info">{{ docker_metrics['memory'] }}</span>
-            </div>
-            <div class="status-item">
-                <span class="status-text"><strong>Almacenamiento del contenedor:</strong></span>
-                <span class="status-info">{{ docker_metrics['disk'] }}</span>
-            </div>
+            <h2>Estado del EC2:</h2>
+            <p><strong>CPU:</strong> {{ ec2_metrics['cpu'] }}</p>
+            <p><strong>RAM:</strong> {{ ec2_metrics['ram'] }}</p>
+            <p><strong>Almacenamiento:</strong> {{ ec2_metrics['disk'] }}</p>
+        </div>
+
+        <div class="status">
+            <h2>Estado del Contenedor:</h2>
+            <p><strong>CPU:</strong> {{ docker_metrics['cpu'] }}</p>
+            <p><strong>RAM:</strong> {{ docker_metrics['memory'] }}</p>
+            <p><strong>Almacenamiento:</strong> {{ docker_metrics['disk'] }}</p>
         </div>
 
         <div class="status">
             <h2>Estado de los Endpoints:</h2>
-            <div class="status-item {{ 'available' if worker_status == 'Worker (Modelo Python) Endpoint: Disponible' else 'unavailable' }}">
-                <span class="status-text">Worker (Modelo Python)</span>
-                <span class="status-icon fas {{ 'fa-check' if worker_status == 'Worker (Modelo Python) Endpoint: Disponible' else 'fa-times' }}"></span>
-            </div>
-            <div class="status-item {{ 'available' if backend_status == 'API Dotnet Endpoint: Disponible' else 'unavailable' }}">
-                <span class="status-text">API Dotnet</span>
-                <span class="status-icon fas {{ 'fa-check' if backend_status == 'API Dotnet Endpoint: Disponible' else 'fa-times' }}"></span>
-            </div>
-            <div class="status-item {{ 'available' if front_status == 'Front PHP 😬 Endpoint: Disponible' else 'unavailable' }}">
-                <span class="status-text">Front PHP 😬</span>
-                <span class="status-icon fas {{ 'fa-check' if front_status == 'Front PHP 😬 Endpoint: Disponible' else 'fa-times' }}"></span>
-            </div>
+            <p>{{ worker_status }}</p>
+            <p>{{ backend_status }}</p>
+            <p>{{ front_status }}</p>
         </div>
     </div>
 </body>
 </html>
+
