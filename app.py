@@ -17,8 +17,8 @@ rds_password = 'Mauricio153.'
 rds_database = 'databasepe'
 
 ec2_username = 'ec2-user' 
-ec2_host = '52.87.243.50' 
-ssh_private_key_path = '.monitos.pem' 
+ec2_host = 'ec2-52-87-243-50.compute-1.amazonaws.com' 
+ssh_private_key_path = 'monitos.pem' 
 docker_container_name = 'backend'
 
 def check_s3_status():
@@ -96,7 +96,7 @@ def index():
     ec2_metrics = check_ec2_metrics()
 
     return render_template('index.html', s3_status=s3_status, rds_status=rds_status, ec2_metrics=ec2_metrics)
-    
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 i
