@@ -3,39 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service Status</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Status Dashboard</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
         .status {
-            font-size: 24px;
-            margin: 20px;
+            font-size: 20px;
+            margin: 10px 0;
         }
-        .status.ok {
+        .status-ok {
             color: green;
         }
-        .status.error {
+        .status-error {
             color: red;
         }
     </style>
 </head>
 <body>
-    <h1>Service Status</h1>
-    
-    <h2>Estado del Bucket S3</h2>
-    <div class="status {{ 'ok' if 'accessible' in s3_status else 'error' }}">
-        <i class="fas {{ 'fa-check-circle' if 'accessible' in s3_status else 'fa-times-circle' }}"></i>
-        <span>{{ s3_status }}</span>
+    <h1>Status Dashboard</h1>
+    <div class="status {{ 'status-ok' if 'accessible' in s3_status else 'status-error' }}">
+        Estado de S3: {{ s3_status }}
     </div>
-
-    <h2>Estado de la Base de Datos RDS</h2>
-    <div class="status {{ 'ok' if 'accessible' in rds_status else 'error' }}">
-        <i class="fas {{ 'fa-check-circle' if 'accessible' in rds_status else 'fa-times-circle' }}"></i>
-        <span>{{ rds_status }}</span>
+    <div class="status {{ 'status-ok' if 'accessible' in rds_status else 'status-error' }}">
+        Estado de RDS: {{ rds_status }}
+    </div>
+    <h2>Métricas de EC2</h2>
+    <div class="status {{ 'status-ok' if 'Unavailable' not in ec2_metrics['cpu'] else 'status-error' }}">
+        CPU: {{ ec2_metrics['cpu'] }}
+    </div>
+    <div class="status {{ 'status-ok' if 'Unavailable' not in ec2_metrics['ram'] else 'status-error' }}">
+        RAM: {{ ec2_metrics['ram'] }}
+    </div>
+    <div class="status {{ 'status-ok' if 'Unavailable' not in ec2_metrics['disk'] else 'status-error' }}">
+        Almacenamiento: {{ ec2_metrics['disk'] }}
+    </div>
+    <div class="status {{ 'status-ok' if 'running' in ec2_metrics['docker'] else 'status-error' }}">
+        Contenedor Docker: {{ ec2_metrics['docker'] }}
     </div>
 </body>
 </html>
