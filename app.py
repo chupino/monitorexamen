@@ -27,7 +27,7 @@ def check_s3_status():
 
 def check_rds_status():
     try:
-        conn = pymssql.connect(server=rds_endpoint, user=rds_username, password=rds_password, database=rds_database)
+        conn = pymssql.connect(server=rds_endpoint, user=rds_username, password=rds_password, database=rds_database, timeout=5)
         cursor = conn.cursor()
         cursor.execute('SELECT 1')
         result = cursor.fetchone()
