@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S3 Bucket Status</title>
+    <title>Service Status</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
@@ -24,11 +24,20 @@
     </style>
 </head>
 <body>
-    <h1>Estado del Bucket S3</h1>
-    <div class="status {{ 'ok' if 'accessible' in status else 'error' }}">
-        <i class="fas {{ 'fa-check-circle' if 'accessible' in status else 'fa-times-circle' }}"></i>
-        <span>{{ status }}</span>
+    <h1>Service Status</h1>
+    
+    <h2>Estado del Bucket S3</h2>
+    <div class="status {{ 'ok' if 'accessible' in s3_status else 'error' }}">
+        <i class="fas {{ 'fa-check-circle' if 'accessible' in s3_status else 'fa-times-circle' }}"></i>
+        <span>{{ s3_status }}</span>
+    </div>
+
+    <h2>Estado de la Base de Datos RDS</h2>
+    <div class="status {{ 'ok' if 'accessible' in rds_status else 'error' }}">
+        <i class="fas {{ 'fa-check-circle' if 'accessible' in rds_status else 'fa-times-circle' }}"></i>
+        <span>{{ rds_status }}</span>
     </div>
 </body>
 </html>
+
 
