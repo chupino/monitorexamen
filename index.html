@@ -6,11 +6,10 @@
     <title>Estado de Servicios</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .status { margin: 20px 0; }
+        .status { margin: 10px 0; }
         .available { color: green; }
         .unavailable { color: red; }
-        .metrics { margin-top: 10px; }
-        .metrics p { margin: 5px 0; }
+        .error { color: orange; }
     </style>
 </head>
 <body>
@@ -18,34 +17,31 @@
 
     <div class="status">
         <h2>Estado de S3:</h2>
-        <p class="{{ 'available' if s3_status == 'Disponible' else 'unavailable' }}">{{ s3_status }}</p>
+        <p class="{{ 'available' if s3_status == 'accessible' else 'unavailable' }}">{{ s3_status }}</p>
     </div>
 
     <div class="status">
         <h2>Estado de RDS:</h2>
-        <p class="{{ 'available' if rds_status == 'Disponible' else 'unavailable' }}">{{ rds_status }}</p>
+        <p class="{{ 'available' if rds_status == 'Database is accessible.' else 'unavailable' }}">{{ rds_status }}</p>
     </div>
 
     <div class="status">
         <h2>Estado del EC2 y Contenedor:</h2>
-        <div class="metrics">
-            <p><strong>CPU del EC2:</strong> {{ ec2_metrics.get('cpu', 'No disponible') }}</p>
-            <p><strong>RAM del EC2:</strong> {{ ec2_metrics.get('memory', 'No disponible') }}</p>
-            <p><strong>Almacenamiento del EC2:</strong> {{ ec2_metrics.get('disk', 'No disponible') }}</p>
-        </div>
-        <div class="metrics">
-            <p><strong>CPU del contenedor:</strong> {{ docker_metrics.get('container_cpu', 'No disponible') }}</p>
-            <p><strong>RAM del contenedor:</strong> {{ docker_metrics.get('container_memory', 'No disponible') }}</p>
-            <p><strong>Almacenamiento del contenedor:</strong> {{ docker_metrics.get('container_disk', 'No disponible') }}</p>
-        </div>
+        <p><strong>CPU del EC2:</strong> {{ ec2_metrics['cpu'] }}</p>
+        <p><strong>RAM del EC2:</strong> {{ ec2_metrics['ram'] }}</p>
+        <p><strong>Almacenamiento del EC2:</strong> {{ ec2_metrics['disk'] }}</p>
+        <p><strong>CPU del contenedor:</strong> {{ docker_metrics['cpu'] }}</p>
+        <p><strong>RAM del contenedor:</strong> {{ docker_metrics['memory'] }}</p>
+        <p><strong>Almacenamiento del contenedor:</strong> {{ docker_metrics['disk'] }}</p>
     </div>
 
     <div class="status">
         <h2>Estado de los Endpoints:</h2>
-        <p><strong>Worker (Modelo Python):</strong> {{ worker_status }}</p>
-        <p><strong>API Dotnet:</strong> {{ backend_status }}</p>
-        <p><strong>Front PHP 😬:</strong> {{ front_status }}</p>
+        <p>{{ worker_status }}</p>
+        <p>{{ backend_status }}</p>
+        <p>{{ front_status }}</p>
     </div>
+
 </body>
 </html>
 

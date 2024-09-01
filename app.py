@@ -54,6 +54,7 @@ def check_ec2_metrics():
         'cpu': 'Unavailable',
         'ram': 'Unavailable',
         'disk': 'Unavailable',
+        'docker': 'Unavailable'
     }
 
     try:
@@ -74,10 +75,18 @@ def check_ec2_metrics():
             metrics['ram'] = ram_usage
 
         # Obtener el uso de disco
-        stdin, stdout, stderr = ssh.exec_command("df -h --total | grep 'total' | awk '{print $3, $4}'")
+        stdin, stdout, stderr = ssh.exec_command("df -h --total | grep 'total'")
         disk_usage = stdout.read().decode().strip()
         if disk_usage:
             metrics['disk'] = disk_usage
+
+        # Verificar el estado del contenedor Docker
+        stdin, stdout, stderr = ssh.exec_command(f"docker ps --filter 'name={docker_container_name}' --format '{{{{.Names}}}}'")
+        docker_status = stdout.read().decode().strip()
+        if docker_container_name in docker_status:
+            metrics['docker'] = 'Docker container is running.'
+        else:
+            metrics['docker'] = 'Docker container is not running.'
 
         ssh.close()
     except Exception as e:
@@ -116,7 +125,7 @@ def check_docker_container_metrics():
                 container_metrics['cpu'] = 'Failed to retrieve CPU usage'
                 container_metrics['memory'] = 'Failed to retrieve memory usage'
 
-            # Obtener el uso de almacenamiento del contenedor de manera más simple
+            # Obtener el uso de almacenamiento del contenedor
             stdin, stdout, stderr = ssh.exec_command(f"docker ps -s --filter 'name={docker_container_name}' --format '{{{{.Size}}}}'")
             disk_output = stdout.read().decode().strip()
             if disk_output:
@@ -139,6 +148,7 @@ def check_endpoint(url, service_name):
             return f'{service_name} Endpoint: No Disponible'
     except requests.RequestException:
         return f'{service_name} Endpoint: No Disponible'
+
 
 @app.route('/')
 def index():
