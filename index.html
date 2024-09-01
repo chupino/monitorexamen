@@ -3,50 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status Dashboard</title>
+    <title>Estado de Servicios</title>
     <style>
-        .status {
-            font-size: 20px;
-            margin: 10px 0;
-        }
-        .status-ok {
-            color: green;
-        }
-        .status-error {
-            color: red;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { margin: 10px 0; }
+        .available { color: green; }
+        .unavailable { color: red; }
     </style>
 </head>
 <body>
-    <h1>Status Dashboard</h1>
-    <div class="status {{ 'status-ok' if 'accessible' in s3_status else 'status-error' }}">
-        Estado de S3: {{ s3_status }}
+    <h1>Estado de Servicios</h1>
+
+    <div class="status">
+        <h2>Estado de S3:</h2>
+        <p class="{{ 'available' if metrics['s3'] == 'Disponible' else 'unavailable' }}">{{ metrics['s3'] }}</p>
     </div>
-    <div class="status {{ 'status-ok' if 'accessible' in rds_status else 'status-error' }}">
-        Estado de RDS: {{ rds_status }}
+
+    <div class="status">
+        <h2>Estado de RDS:</h2>
+        <p class="{{ 'available' if metrics['rds'] == 'Disponible' else 'unavailable' }}">{{ metrics['rds'] }}</p>
     </div>
-    <h2>Métricas de EC2</h2>
-    <div class="status {{ 'status-ok' if 'Unavailable' not in ec2_metrics['cpu'] else 'status-error' }}">
-        CPU: {{ ec2_metrics['cpu'] }}
+
+    <div class="status">
+        <h2>Estado del EC2 y Contenedor:</h2>
+        <p>{{ metrics['cpu'] }}</p>
+        <p>{{ metrics['memory'] }}</p>
+        <p>{{ metrics['disk'] }}</p>
+        <p>{{ metrics.get('container_cpu', 'No disponible') }}</p>
+        <p>{{ metrics.get('container_memory', 'No disponible') }}</p>
+        <p>{{ metrics.get('container_disk', 'No disponible') }}</p>
     </div>
-    <div class="status {{ 'status-ok' if 'Unavailable' not in ec2_metrics['ram'] else 'status-error' }}">
-        RAM: {{ ec2_metrics['ram'] }}
-    </div>
-    <div class="status {{ 'status-ok' if 'Unavailable' not in ec2_metrics['disk'] else 'status-error' }}">
-        Almacenamiento: {{ ec2_metrics['disk'] }}
-    </div>
-    <div class="status {{ 'status-ok' if 'running' in ec2_metrics['docker'] else 'status-error' }}">
-        Contenedor Docker: {{ ec2_metrics['docker'] }}
-    </div>
-    <h2>Métricas del Contenedor Docker "backend"</h2>
-    <div class="status {{ 'status-ok' if 'Unavailable' not in docker_metrics['cpu'] else 'status-error' }}">
-        CPU del contenedor: {{ docker_metrics['cpu'] }}
-    </div>
-    <div class="status {{ 'status-ok' if 'Unavailable' not in docker_metrics['memory'] else 'status-error' }}">
-        RAM del contenedor: {{ docker_metrics['memory'] }}
-    </div>
-    <div class="status {{ 'status-ok' if 'Unavailable' not in docker_metrics['disk'] else 'status-error' }}">
-        Almacenamiento del contenedor: {{ docker_metrics['disk'] }}
+
+    <div class="status">
+        <h2>Estado de los Endpoints:</h2>
+        <p>{{ metrics['worker_endpoint'] }}</p>
+        <p>{{ metrics['backend_endpoint'] }}</p>
+        <p>{{ metrics['front_endpoint'] }}</p>
     </div>
 </body>
 </html>

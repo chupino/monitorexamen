@@ -6,7 +6,7 @@ import paramiko
 app = Flask(__name__)
 
 # Configura tu bucket y objeto aquí
-bucket_name = 'webserverpe'
+bucket_name = 'serverwebpe'
 object_key = 'doc1.html'
 s3_base_url = f'https://{bucket_name}.s3.us-east-1.amazonaws.com/{object_key}'
 
@@ -20,6 +20,10 @@ ec2_username = 'ec2-user'
 ec2_host = 'ec2-52-87-243-50.compute-1.amazonaws.com' 
 ssh_private_key_path = 'monitos.pem' 
 docker_container_name = 'backend'
+
+worker_endpoint = 'http://ip172-18-0-24-craf1eqim2rg00dvbji0-5000.direct.labs.play-with-docker.com/'
+backend_endpoint = 'http://52.87.243.50:8000/api'
+front_endpoint = 'http://ip172-18-0-21-craf1eqim2rg00dvbji0-7000.direct.labs.play-with-docker.com/index.php'
 
 def check_s3_status():
     try:
@@ -134,6 +138,24 @@ def check_docker_container_metrics():
 
     return container_metrics
 
+def check_endpoint(url, service_name):
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            return f'{service_name} Endpoint: Disponible'
+        else:
+            return f'{service_name} Endpoint: No Disponible'
+    except requests.RequestException:
+        return f'{service_name} Endpoint: No Disponible'
+
+def check_worker_endpoint():
+    return check_endpoint(worker_endpoint, 'Worker')
+
+def check_backend_endpoint():
+    return check_endpoint(backend_endpoint, 'Backend')
+
+def check_front_endpoint():
+    return check_endpoint(front_endpoint, 'Front')
 
 
 @app.route('/')
@@ -142,8 +164,18 @@ def index():
     rds_status = check_rds_status()
     ec2_metrics = check_ec2_metrics()
     docker_metrics = check_docker_container_metrics()
+    worker_status = check_endpoint(worker_endpoint, 'Worker')
+    backend_status = check_endpoint(backend_endpoint, 'Backend')
+    front_status = check_endpoint(front_endpoint, 'Front')
 
-    return render_template('index.html', s3_status=s3_status, rds_status=rds_status, ec2_metrics=ec2_metrics, docker_metrics=docker_metrics)
+    return render_template('index.html', 
+                           s3_status=s3_status, 
+                           rds_status=rds_status, 
+                           ec2_metrics=ec2_metrics, 
+                           docker_metrics=docker_metrics, 
+                           worker_status=worker_status, 
+                           backend_status=backend_status, 
+                           front_status=front_status)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
