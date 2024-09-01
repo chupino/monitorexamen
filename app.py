@@ -120,11 +120,20 @@ def check_docker_container_metrics():
                 container_metrics['cpu'] = 'Failed to retrieve CPU usage'
                 container_metrics['memory'] = 'Failed to retrieve memory usage'
 
+            # Obtener el uso de almacenamiento del contenedor
+            stdin, stdout, stderr = ssh.exec_command(f"docker inspect --format='{{{{.GraphDriver.Data}}}}' {docker_container_name}")
+            disk_output = stdout.read().decode().strip()
+            if disk_output:
+                container_metrics['disk'] = f'Storage Usage: {disk_output}'
+            else:
+                container_metrics['disk'] = 'Failed to retrieve disk usage'
+
         ssh.close()
     except Exception as e:
         container_metrics['error'] = f'Error fetching container metrics: {str(e)}'
 
     return container_metrics
+
 
 @app.route('/')
 def index():
