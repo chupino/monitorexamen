@@ -89,13 +89,51 @@ def check_ec2_metrics():
 
     return metrics
 
+def check_docker_container_metrics():
+    container_metrics = {
+        'cpu': 'Unavailable',
+        'memory': 'Unavailable',
+        'disk': 'Unavailable'
+    }
+
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(ec2_host, username=ec2_username, key_filename=ssh_private_key_path)
+
+        # Obtener el uso de CPU del contenedor
+        stdin, stdout, stderr = ssh.exec_command(f"docker stats {docker_container_name} --no-stream --format '{{{{.CPUPerc}}}}'")
+        cpu_usage = stdout.read().decode().strip()
+        if cpu_usage:
+            container_metrics['cpu'] = f'CPU Usage: {cpu_usage}'
+
+        # Obtener el uso de memoria del contenedor
+        stdin, stdout, stderr = ssh.exec_command(f"docker stats {docker_container_name} --no-stream --format '{{{{.MemUsage}}}}'")
+        memory_usage = stdout.read().decode().strip()
+        if memory_usage:
+            container_metrics['memory'] = f'Memory Usage: {memory_usage}'
+
+        # Obtener el uso de disco del contenedor (esto es más complicado y puede requerir configuraciones adicionales en Docker)
+        # Para simplificar, se podría utilizar el tamaño de los logs o usar un comando como:
+        stdin, stdout, stderr = ssh.exec_command(f"docker system df --format '{{{{.Size}}}}'")
+        disk_usage = stdout.read().decode().strip()
+        if disk_usage:
+            container_metrics['disk'] = f'Disk Usage: {disk_usage}'
+
+        ssh.close()
+    except Exception as e:
+        container_metrics['error'] = f'Error fetching container metrics: {str(e)}'
+
+    return container_metrics
+
 @app.route('/')
 def index():
     s3_status = check_s3_status()
     rds_status = check_rds_status()
     ec2_metrics = check_ec2_metrics()
+    docker_metrics = check_docker_container_metrics()
 
-    return render_template('index.html', s3_status=s3_status, rds_status=rds_status, ec2_metrics=ec2_metrics)
+    return render_template('index.html', s3_status=s3_status, rds_status=rds_status, ec2_metrics=ec2_metrics, docker_metrics=docker_metrics)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

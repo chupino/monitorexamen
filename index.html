@@ -38,6 +38,16 @@
     <div class="status {{ 'status-ok' if 'running' in ec2_metrics['docker'] else 'status-error' }}">
         Contenedor Docker: {{ ec2_metrics['docker'] }}
     </div>
+    <h2>Métricas del Contenedor Docker "backend"</h2>
+    <div class="status {{ 'status-ok' if 'Unavailable' not in docker_metrics['cpu'] else 'status-error' }}">
+        CPU del contenedor: {{ docker_metrics['cpu'] }}
+    </div>
+    <div class="status {{ 'status-ok' if 'Unavailable' not in docker_metrics['memory'] else 'status-error' }}">
+        RAM del contenedor: {{ docker_metrics['memory'] }}
+    </div>
+    <div class="status {{ 'status-ok' if 'Unavailable' not in docker_metrics['disk'] else 'status-error' }}">
+        Almacenamiento del contenedor: {{ docker_metrics['disk'] }}
+    </div>
 </body>
 </html>
 
