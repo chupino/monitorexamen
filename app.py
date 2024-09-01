@@ -48,12 +48,12 @@ def check_rds_status():
             return 'Error: Unable to query database.'
     except pymssql.DatabaseError as e:
         return f'Error: {str(e)}'
+
 def check_ec2_metrics():
     metrics = {
         'cpu': 'Unavailable',
         'ram': 'Unavailable',
         'disk': 'Unavailable',
-        'docker': 'Unavailable'
     }
 
     try:
@@ -74,18 +74,10 @@ def check_ec2_metrics():
             metrics['ram'] = ram_usage
 
         # Obtener el uso de disco
-        stdin, stdout, stderr = ssh.exec_command("df -h --total | grep 'total'")
+        stdin, stdout, stderr = ssh.exec_command("df -h --total | grep 'total' | awk '{print $3, $4}'")
         disk_usage = stdout.read().decode().strip()
         if disk_usage:
             metrics['disk'] = disk_usage
-
-        # Verificar el estado del contenedor Docker
-        stdin, stdout, stderr = ssh.exec_command(f"docker ps --filter 'name={docker_container_name}' --format '{{{{.Names}}}}'")
-        docker_status = stdout.read().decode().strip()
-        if docker_container_name in docker_status:
-            metrics['docker'] = 'Docker container is running.'
-        else:
-            metrics['docker'] = 'Docker container is not running.'
 
         ssh.close()
     except Exception as e:
@@ -148,23 +140,13 @@ def check_endpoint(url, service_name):
     except requests.RequestException:
         return f'{service_name} Endpoint: No Disponible'
 
-def check_worker_endpoint():
-    return check_endpoint(worker_endpoint, 'Worker')
-
-def check_backend_endpoint():
-    return check_endpoint(backend_endpoint, 'Backend')
-
-def check_front_endpoint():
-    return check_endpoint(front_endpoint, 'Front')
-
-
 @app.route('/')
 def index():
     s3_status = check_s3_status()
     rds_status = check_rds_status()
     ec2_metrics = check_ec2_metrics()
     docker_metrics = check_docker_container_metrics()
-    worker_status = check_endpoint(worker_endpoint,"Worker (Modelo Python)")
+    worker_status = check_endpoint(worker_endpoint, "Worker (Modelo Python)")
     backend_status = check_endpoint(backend_endpoint, "API Dotnet")
     front_status = check_endpoint(front_endpoint, "Front PHP 😬")
 
@@ -179,4 +161,4 @@ def index():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-i
+
