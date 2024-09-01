@@ -101,16 +101,24 @@ def check_docker_container_metrics():
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(ec2_host, username=ec2_username, key_filename=ssh_private_key_path)
 
-        # Obtener el uso de CPU y memoria del contenedor
-        stdin, stdout, stderr = ssh.exec_command(f"docker stats {docker_container_name} --no-stream --format '{{{{.CPUPerc}}}},{{{{.MemUsage}}}}'")
-        stats_output = stdout.read().decode().strip()
-        if stats_output:
-            cpu_usage, memory_usage = stats_output.split(',')
-            container_metrics['cpu'] = f'CPU Usage: {cpu_usage.strip()}'
-            container_metrics['memory'] = f'Memory Usage: {memory_usage.strip()}'
-
-        # Nota: El uso de disco para contenedores individuales no es tan sencillo de obtener, a menos que el contenedor escriba en un volumen específico.
-        # Aquí podríamos obtener el tamaño de las imágenes y contenedores en el sistema en general, o detalles específicos si se configura.
+        # Verificar si el contenedor está en ejecución antes de obtener las métricas
+        stdin, stdout, stderr = ssh.exec_command(f"docker ps --filter 'name={docker_container_name}' --format '{{{{.Names}}}}'")
+        docker_status = stdout.read().decode().strip()
+        if docker_container_name not in docker_status:
+            container_metrics['cpu'] = 'Container not running'
+            container_metrics['memory'] = 'Container not running'
+            container_metrics['disk'] = 'Container not running'
+        else:
+            # Obtener el uso de CPU y memoria del contenedor
+            stdin, stdout, stderr = ssh.exec_command(f"docker stats {docker_container_name} --no-stream --format '{{{{.CPUPerc}}}},{{{{.MemUsage}}}}'")
+            stats_output = stdout.read().decode().strip()
+            if stats_output:
+                cpu_usage, memory_usage = stats_output.split(',')
+                container_metrics['cpu'] = f'CPU Usage: {cpu_usage.strip()}'
+                container_metrics['memory'] = f'Memory Usage: {memory_usage.strip()}'
+            else:
+                container_metrics['cpu'] = 'Failed to retrieve CPU usage'
+                container_metrics['memory'] = 'Failed to retrieve memory usage'
 
         ssh.close()
     except Exception as e:
