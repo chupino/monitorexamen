@@ -6,7 +6,7 @@ import paramiko
 app = Flask(__name__)
 
 # Configura tu bucket y objeto aquí
-bucket_name = 'serverwebpe'
+bucket_name = 'webserverpe'
 object_key = 'doc1.html'
 s3_base_url = f'https://{bucket_name}.s3.us-east-1.amazonaws.com/{object_key}'
 
