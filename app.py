@@ -62,11 +62,11 @@ def check_ec2_metrics():
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(ec2_host, username=ec2_username, key_filename=ssh_private_key_path)
 
-        # Obtener el uso de CPU
-        stdin, stdout, stderr = ssh.exec_command("top -bn1 | grep 'Cpu(s)'")
+        # Obtener el uso de CPU (solo porcentaje)
+        stdin, stdout, stderr = ssh.exec_command("top -bn1 | grep 'Cpu(s)' | awk '{print $2 + $4}'")
         cpu_usage = stdout.read().decode().strip()
         if cpu_usage:
-            metrics['cpu'] = cpu_usage
+            metrics['cpu'] = f"{cpu_usage}%"
 
         # Obtener el uso de RAM
         stdin, stdout, stderr = ssh.exec_command("free -m | awk 'NR==2{printf \"Memory Usage: %s/%sMB (%.2f%%)\", $3,$2,$3*100/$2 }'")
@@ -93,6 +93,7 @@ def check_ec2_metrics():
         metrics['error'] = f'Error connecting to EC2: {str(e)}'
 
     return metrics
+
 
 def check_docker_container_metrics():
     container_metrics = {
