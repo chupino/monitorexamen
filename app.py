@@ -10,7 +10,7 @@ bucket_name = 'webserverpe'
 object_key = 'doc1.html'
 s3_base_url = f'https://{bucket_name}.s3.us-east-1.amazonaws.com/{object_key}'
 
-rds_endpoint = 'database-1.crqwem7ksg0d.us-east-1.rds.amazonaws.com'
+rds_endpoint = 'database-1.c4dyhdtxg4qb.us-east-1.rds.amazonaws.com'
 rds_port = '1433'
 rds_username = 'admin'
 rds_password = 'Mauricio153.'
