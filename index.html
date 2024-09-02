@@ -7,91 +7,78 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 20px;
             background-color: #1e1e1e;
-            color: #ffffff;
+            color: #f0f0f0;
         }
         .container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
-            padding: 20px;
         }
-        .status {
-            background-color: #2a2a2a;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        .full-width {
+            grid-column: span 2;
         }
-        .status h2 {
-            margin-top: 0;
+        .status-box {
+            background-color: #2c3e50;
+            border: 1px solid #34495e;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        .status-box p {
+            margin: 0;
+            padding: 5px 0;
         }
         .available {
-            color: #4caf50;
-            font-size: 1.2em;
+            color: #2ecc71;
         }
         .unavailable {
-            color: #f44336;
-            font-size: 1.2em;
+            color: #e74c3c;
         }
         .error {
-            color: #ff9800;
-            font-size: 1.2em;
+            color: #e67e22;
         }
-        .status p {
-            margin: 10px 0;
-            font-size: 1em;
-        }
-        .status p strong {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .status img {
-            width: 20px;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        .check {
-            color: #4caf50;
+        .checkmark {
+            color: #2ecc71;
         }
         .cross {
-            color: #f44336;
+            color: #e74c3c;
         }
     </style>
 </head>
 <body>
+    <h1>Estado de Servicios</h1>
+
     <div class="container">
-        <div class="status">
+        <div class="status-box">
             <h2>Estado de S3:</h2>
-            <p class="{{ 'available' if s3_status == 'accessible' else 'unavailable' }}">
-                <img src="{{ url_for('static', filename='check.svg') }}" class="{{ 'check' if s3_status == 'accessible' else 'cross' }}" alt="Status Icon"> {{ s3_status }}
+            <p class="{{ 'checkmark' if s3_status == 'accessible' else 'cross' }}">
+                {% if s3_status == 'accessible' %}✔️{{ s3_status }}{% else %}❌{{ s3_status }}{% endif %}
             </p>
         </div>
 
-        <div class="status">
+        <div class="status-box">
             <h2>Estado de RDS:</h2>
-            <p class="{{ 'available' if rds_status == 'Database is accessible.' else 'unavailable' }}">
-                <img src="{{ url_for('static', filename='check.svg') }}" class="{{ 'check' if rds_status == 'Database is accessible.' else 'cross' }}" alt="Status Icon"> {{ rds_status }}
+            <p class="{{ 'checkmark' if rds_status == 'Database is accessible.' else 'cross' }}">
+                {% if rds_status == 'Database is accessible.' %}✔️{{ rds_status }}{% else %}❌{{ rds_status }}{% endif %}
             </p>
         </div>
 
-        <div class="status">
+        <div class="status-box">
             <h2>Estado del EC2:</h2>
-            <p><strong>CPU:</strong> {{ ec2_metrics['cpu'] }}</p>
-            <p><strong>RAM:</strong> {{ ec2_metrics['ram'] }}</p>
-            <p><strong>Almacenamiento:</strong> {{ ec2_metrics['disk'] }}</p>
+            <p><strong>CPU del EC2:</strong> {{ ec2_metrics['cpu'] }}</p>
+            <p><strong>RAM del EC2:</strong> {{ ec2_metrics['ram'] }}</p>
+            <p><strong>Almacenamiento del EC2:</strong> {{ ec2_metrics['disk'] }}</p>
         </div>
 
-        <div class="status">
+        <div class="status-box">
             <h2>Estado del Contenedor:</h2>
-            <p><strong>CPU:</strong> {{ docker_metrics['cpu'] }}</p>
-            <p><strong>RAM:</strong> {{ docker_metrics['memory'] }}</p>
-            <p><strong>Almacenamiento:</strong> {{ docker_metrics['disk'] }}</p>
+            <p><strong>CPU del contenedor:</strong> {{ docker_metrics['cpu'] }}</p>
+            <p><strong>RAM del contenedor:</strong> {{ docker_metrics['memory'] }}</p>
+            <p><strong>Almacenamiento del contenedor:</strong> {{ docker_metrics['disk'] }}</p>
         </div>
 
-        <div class="status">
+        <div class="status-box full-width">
             <h2>Estado de los Endpoints:</h2>
             <p>{{ worker_status }}</p>
             <p>{{ backend_status }}</p>
@@ -100,4 +87,6 @@
     </div>
 </body>
 </html>
+
+
 
